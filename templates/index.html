@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Entity Extraction Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Existing CSS styles */
+
+        /* Loader Styles */
+        .loader {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #4285F4; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* Hidden by default */
+            z-index: 1000;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Overlay to dim the background when loader is active */
+        .overlay {
+            position: fixed;
+            display: none; /* Hidden by default */
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5); /* Black with opacity */
+            z-index: 999; /* Sit behind the loader */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .upload-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section input[type=file] {
+            margin: 20px 0;
+        }
+        .upload-section button {
+            padding: 10px 20px;
+            background-color: #4285F4;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .upload-section button:hover {
+            background-color: #357ae8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4285F4;
+            color: white;
+        }
+        .download-button {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 10px 0;
+            background-color: #34A853;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .download-button:hover {
+            background-color: #2c8e46;
+        }
+        .flash-message {
+            text-align: center;
+            color: red;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Entity Extraction from Images</h1>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-message">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="upload-section">
+            <form method="post" enctype="multipart/form-data" id="upload-form">
+                <!-- Enable folder selection -->
+                <input type="file" name="files[]" multiple webkitdirectory directory required>
+                <br>
+                <button type="submit">Upload and Extract Entities</button>
+            </form>
+        </div>
+
+        <!-- Loader and Overlay -->
+        <div class="overlay" id="overlay"></div>
+        <div class="loader" id="loader"></div>
+
+        {% if tables %}
+            <h2>Extracted Entities</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Booth Number</th>
+                        <th>नाव</th>
+                        <th>पतीचे नाव</th>
+                        <th>वय</th>
+                        <th>लिंग</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entity in tables[0] %}
+                        <tr>
+                            <td>{{ entity.serial_number }}</td>
+                            <td>{{ entity['Booth Number'] or 'N/A' }}</td>
+                            <td>{{ entity.नाव or 'N/A' }}</td>
+                            <td>{{ entity['पतीचे नाव'] or 'N/A' }}</td>
+                            <td>{{ entity.वय or 'N/A' }}</td>
+                            <td>{{ entity.लिंग or 'N/A' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ url_for('download') }}" class="download-button">Download JSON</a>
+        {% endif %}
+    </div>
+
+    <script>
+        // JavaScript to handle loader visibility
+        document.getElementById('upload-form').addEventListener('submit', function() {
+            // Show the loader and overlay
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

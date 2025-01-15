@@ -1,0 +1,7 @@
+Flask
+opencv-python
+pytesseract
+transformers
+torch
+gunicorn
+pandas
